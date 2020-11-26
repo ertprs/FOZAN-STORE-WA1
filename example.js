@@ -7,11 +7,11 @@ const http = require("http").createServer(app);
 const url = require("url");
 const io = require("socket.io")(http);
 const bodyParser = require("body-parser");
-const SESSION_FILE_PATH = "./session.json";
-let sessionCfg;
-if (fs.existsSync(SESSION_FILE_PATH)) {
-  sessionCfg = require(SESSION_FILE_PATH);
-}
+// const SESSION_FILE_PATH = "./session.json";
+// let sessionCfg;
+// if (fs.existsSync(SESSION_FILE_PATH)) {
+//   sessionCfg = require(SESSION_FILE_PATH);
+// }
 
 const client = new Client({
   restartOnAuthFail: true,
@@ -27,8 +27,8 @@ const client = new Client({
       "--single-process", // <- this one doesn't works in Windows
       "--disable-gpu"
     ]
-  },
-  session: sessionCfg
+  }
+  // session: sessionCfg
 });
 
 app.use(bodyParser.json({ limit: "50mb" })); // for parsing application/json
@@ -58,12 +58,12 @@ client.on("qr", qr => {
 
 client.on("authenticated", session => {
   console.log("AUTHENTICATED", session);
-  sessionCfg = session;
-  fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function(err) {
-    if (err) {
-      console.error(err);
-    }
-  });
+  // sessionCfg = session;
+  // fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function(err) {
+  //   if (err) {
+  //     console.error(err);
+  //   }
+  // });
 });
 
 client.on("auth_failure", msg => {
@@ -75,10 +75,10 @@ client.on("disconnected", reason => {
   console.log("Client was logged out", reason);
   io.emit("client", reason);
   if (reason === "UNPAIRED") {
-    fs.unlinkSync(SESSION_FILE_PATH, function(err) {
-      if (err) return console.log(err);
-      console.log("Session file deleted!");
-    });
+    // fs.unlinkSync(SESSION_FILE_PATH, function(err) {
+    //   if (err) return console.log(err);
+    //   console.log("Session file deleted!");
+    // });
   }
   client.destroy();
   client.initialize();
