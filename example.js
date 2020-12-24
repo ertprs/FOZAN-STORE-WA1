@@ -2,17 +2,27 @@ const fs = require("fs");
 const { Client, MessageMedia } = require("whatsapp-web.js");
 const express = require("express");
 const app = express();
+app.use(function(req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "X-Requested-With");
+        res.header("Access-Control-Allow-Headers", "Content-Type");
+        res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
+        next();
+    });
 const axios = require("axios");
 const http = require("http").createServer(app);
 const url = require("url");
-const io = require("socket.io")(http);
+const io = require("socket.io")(http, {log:false, origins:'*:*'});
 const bodyParser = require("body-parser");
-// const SESSION_FILE_PATH = "./session.json";
-// let sessionCfg;
-// if (fs.existsSync(SESSION_FILE_PATH)) {
-//   sessionCfg = require(SESSION_FILE_PATH);
-// }
-
+const SESSION_FILE_PATH = "./session.json";
+const path = require("path");
+const qrcode = require('qrcode');
+const events = (require("events").EventEmitter.defaultMaxListeners = 1000);
+let sessionCfg;
+if (fs.existsSync(SESSION_FILE_PATH)) {
+  sessionCfg = require(SESSION_FILE_PATH);
+}
+let qrCode;
 const client = new Client({
   restartOnAuthFail: true,
   puppeteer: {
@@ -27,13 +37,14 @@ const client = new Client({
       "--single-process", // <- this one doesn't works in Windows
       "--disable-gpu"
     ]
-  }
-  // session: sessionCfg
+  },
+  session: sessionCfg
 });
 
 app.use(bodyParser.json({ limit: "50mb" })); // for parsing application/json
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true })); // for parsing       application/x-www-form-urlencoded
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 
 io.on("connection", async socket => {
   console.log(io.engine.clientsCount + " client connected");
@@ -52,18 +63,22 @@ const listener = http.listen(process.env.PORT, function() {
 client.on("qr", qr => {
   // Generate and scan this code with your phone
   console.log("QR RECEIVED", qr);
+  qrCode = qr;
   client.pupPage.screenshot({ path: __dirname + "/public/qr.png" });
-  io.emit("qr", qr);
+      qrcode.toDataURL(qr, (err, url) => {
+      io.emit('qr', url);
+    });
+  
 });
 
 client.on("authenticated", session => {
   console.log("AUTHENTICATED", session);
-  // sessionCfg = session;
-  // fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function(err) {
-  //   if (err) {
-  //     console.error(err);
-  //   }
-  // });
+  sessionCfg = session;
+  fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function(err) {
+    if (err) {
+      console.error(err);
+    }
+  });
 });
 
 client.on("auth_failure", msg => {
@@ -71,17 +86,26 @@ client.on("auth_failure", msg => {
   console.error("AUTHENTICATION FAILURE", msg);
 });
 
-client.on("disconnected", reason => {
+client.on("disconnected", async reason => {
   console.log("Client was logged out", reason);
-  io.emit("client", reason);
   if (reason === "UNPAIRED") {
-    // fs.unlinkSync(SESSION_FILE_PATH, function(err) {
-    //   if (err) return console.log(err);
-    //   console.log("Session file deleted!");
-    // });
+    fs.unlinkSync(SESSION_FILE_PATH, function(err) {
+      if (err) return console.log(err);
+      console.log("Session file deleted!");
+    });
   }
   client.destroy();
   client.initialize();
+});
+
+client.on("change_state", async reason => {
+  console.log(reason);
+  io.emit("change_state", reason);
+
+  if (reason === "UNPAIRED") {
+    client.destroy();
+    client.initialize();
+  }
 });
 
 client.on("ready", () => {
@@ -304,21 +328,22 @@ app.post("/send", async function(req, res) {
         message: "The number is not registered"
       });
     }
-
-    client
-      .sendMessage(number, message)
-      .then(response => {
-        res.status(200).json({
-          status: true,
-          response: response
+    if (message.length) {
+      client
+        .sendMessage(number, message)
+        .then(response => {
+          res.status(200).json({
+            status: true,
+            response: response
+          });
+        })
+        .catch(err => {
+          res.status(500).json({
+            status: false,
+            message: "Your not a loggin"
+          });
         });
-      })
-      .catch(err => {
-        res.status(500).json({
-          status: false,
-          message: "Your not a loggin"
-        });
-      });
+    }
     // res.send(client.sendMessage(number, message));
   } catch (e) {
     console.error(e);
@@ -370,7 +395,9 @@ app.post("/send-media", async (req, res) => {
     req.body.number + (req.body.number.includes("-") ? "@g.us" : "@c.us");
   const caption = req.body.caption;
   const fileUrl = req.body.file;
-
+  const type = req.body.type;
+  const fileName = req.body.fileName;
+  console.log(req);
   let isRegisteredNumber = await checkRegisteredNumber(number);
   if (!isRegisteredNumber) {
     return res.status(422).json({
@@ -379,16 +406,17 @@ app.post("/send-media", async (req, res) => {
     });
   }
   let mimetype;
-  const attachment = await axios
-    .get(fileUrl, {
-      responseType: "arraybuffer"
-    })
-    .then(response => {
-      mimetype = response.headers["content-type"];
-      return response.data.toString("base64");
-    });
+  // const attachment = await axios
+  //   .get(fileUrl, {
+  //     responseType: "arraybuffer"
+  //   })
+  //   .then(response => {
+  //     console.log(response)
+  //     mimetype = response.headers["content-type"];
+  //     return response.data.toString("base64");
+  //   });
 
-  const media = new MessageMedia(mimetype, attachment, "Media");
+  const media = new MessageMedia(type, fileUrl, fileName);
 
   client
     .sendMessage(number, media, {
@@ -408,7 +436,7 @@ app.post("/send-media", async (req, res) => {
     });
 });
 
-app.get("/cek", async (req, res) => {
+app.post("/cek", async (req, res) => {
   let number =
     req.body.number + (req.body.number.includes("-") ? "@g.us" : "@c.us");
   try {
@@ -428,7 +456,19 @@ app.get("/cek", async (req, res) => {
   } catch (error) {
     res.status(500).json({
       status: false,
-      response: err
+      response: error
     });
+  }
+});
+
+app.get("/qrCode", async (req, res) => {
+  try {
+    res.status(200).json({
+      status: true,
+      response: qrCode
+    });
+  } catch (error) {
+    res.send(error);
+    console.log(error);
   }
 });

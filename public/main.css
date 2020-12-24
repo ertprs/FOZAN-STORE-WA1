@@ -1,0 +1,82 @@
+.qr {
+height: auto;
+    max-width: 100%;
+    margin-top: 102px;
+    margin-bottom: 2.5rem;
+    margin-left: 232px;
+}
+
+.example {
+  padding: 20px;
+  color: white;
+}
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+  .qr {
+height: auto;
+    max-width: 52%;
+    margin-top: 50px;
+    margin-bottom: 2.5rem;
+    margin-left: 115px;
+}
+  .connect{
+        height: auto;
+    max-width: 52%;
+    margin-top: 50px;
+    margin-bottom: 2.5rem;
+    margin-left: 75px;
+    
+  }
+  .loading{
+    height: auto;
+    max-width: 52%;
+    margin-top: 50px;
+    margin-bottom: 2.5rem;
+    margin-left: 75px;
+    
+  }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+  .qr {
+height: auto;
+    max-width: 52%;
+    margin-top: 50px;
+    margin-bottom: 2.5rem;
+    margin-left: 115px;
+}
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+  .qr {
+height: auto;
+    max-width: 100%;
+    margin-top: 102px;
+    margin-bottom: 2.5rem;
+    margin-left: 232px;
+}
+} 
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+.qr {
+height: auto;
+    max-width: 100%;
+    margin-top: 102px;
+    margin-bottom: 2.5rem;
+    margin-left: 232px;
+}
+} 
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+.qr {
+height: auto;
+    max-width: 100%;
+    margin-top: 102px;
+    margin-bottom: 2.5rem;
+    margin-left: 232px;
+}
+}
