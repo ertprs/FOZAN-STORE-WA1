@@ -289,12 +289,10 @@ app.get("/status", async function(req, res) {
       .getState()
       .then(response => {
         console.log(response);
-        if (response === "CONNECTED") {
           res.status(200).json({
             status: true,
             response: response
           });
-        }
       })
       .catch(err => {
         res.status(500).json({
