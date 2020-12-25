@@ -38,6 +38,7 @@ const client = new Client({
       "--disable-gpu"
     ]
   },
+
   session: sessionCfg
 });
 
@@ -289,10 +290,10 @@ app.get("/status", async function(req, res) {
       .getState()
       .then(response => {
         console.log(response);
-          res.status(200).json({
-            status: true,
-            response: response
-          });
+        res.status(200).json({
+          status: true,
+          response: response
+        });
       })
       .catch(err => {
         res.status(500).json({
