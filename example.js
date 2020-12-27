@@ -35,7 +35,12 @@ const client = new Client({
       "--no-first-run",
       "--no-zygote",
       "--single-process",
-      "--disable-gpu"
+      "--disable-gpu",
+      "--aggressive-cache-discard",
+      "--disable-cache",
+      "--disable-application-cache",
+      "--disable-offline-load-stale-cache",
+      "--disk-cache-size=0"
     ]
   },
 
@@ -88,13 +93,13 @@ client.on("auth_failure", msg => {
 
 client.on("disconnected", async reason => {
   console.log("Client was logged out", reason);
-  if (reason === "UNPAIRED") {
-    fs.unlinkSync(SESSION_FILE_PATH, function(err) {
-      if (err) return console.log(err);
-      console.log("Session file deleted!");
-    });
-  }
-  client.destroy();
+  // if (reason === "UNPAIRED") {
+  //   fs.unlinkSync(SESSION_FILE_PATH, function(err) {
+  //     if (err) return console.log(err);
+  //     console.log("Session file deleted!");
+  //   });
+  // }
+  // client.destroy();
   client.initialize();
 });
 
@@ -283,7 +288,6 @@ app.get("/send/:id/:message", function(req, res) {
     throw new Error(req.url);
   }
 });
-
 
 app.get("/status", async function(req, res) {
   try {
