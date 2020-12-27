@@ -88,22 +88,16 @@ client.on("authenticated", session => {
 client.on("auth_failure", msg => {
   // Fired if session restore was unsuccessfull
   console.error("AUTHENTICATION FAILURE", msg);
-  console.log(msg);
-  console.log(sessionCfg);
-  client.pupBrowser.close();
-  client.initialize();
 });
 
 client.on("disconnected", async reason => {
   console.log("Client was logged out", reason);
-  // if (reason === "UNPAIRED") {
-  //   fs.unlinkSync(SESSION_FILE_PATH, function(err) {
-  //     if (err) return console.log(err);
-  //     console.log("Session file deleted!");
-  //   });
-  // }
-  // client.destroy();
-  // client.initialize();
+  fs.unlinkSync(SESSION_FILE_PATH, function(err) {
+    if (err) return console.log(err);
+    console.log("Session file deleted!");
+  });
+  client.destroy();
+  client.initialize();
 });
 
 client.on("change_state", async reason => {
