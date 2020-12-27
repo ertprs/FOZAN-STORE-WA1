@@ -24,7 +24,7 @@ if (fs.existsSync(SESSION_FILE_PATH)) {
 }
 let qrCode;
 const client = new Client({
-  restartOnAuthFail: true,
+  restartOnAuthFail: false,
   puppeteer: {
     headless: true,
     args: [
@@ -283,6 +283,7 @@ app.get("/send/:id/:message", function(req, res) {
     throw new Error(req.url);
   }
 });
+
 
 app.get("/status", async function(req, res) {
   try {
