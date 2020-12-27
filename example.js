@@ -24,7 +24,7 @@ if (fs.existsSync(SESSION_FILE_PATH)) {
 }
 let qrCode;
 const client = new Client({
-  restartOnAuthFail: false,
+  restartOnAuthFail: true,
   puppeteer: {
     headless: true,
     args: [
