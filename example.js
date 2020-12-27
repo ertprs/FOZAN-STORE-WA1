@@ -18,7 +18,6 @@ const SESSION_FILE_PATH = "./session.json";
 const path = require("path");
 const qrcode = require("qrcode");
 const events = (require("events").EventEmitter.defaultMaxListeners = 1000);
-const { getToken, topup } = require("./topup");
 let sessionCfg;
 if (fs.existsSync(SESSION_FILE_PATH)) {
   sessionCfg = require(SESSION_FILE_PATH);
@@ -146,12 +145,6 @@ client.on("message_ack", (msg, ack) => {
     // The message was read
     io.emit("message_read", msg);
   }
-});
-app.get("/token", async (request, response) => {
-  let email = request.query.email;
-  let token = await getToken(email + ".json");
-  response.json(token);
-  // response.sendFile(__dirname + "/views/index.html");
 });
 
 app.get("/", async (req, res) => {
