@@ -1,4 +1,4 @@
-const { Client } = require("whatsapp-web.js");
+// const { Client  = require("whatsapp-web.js");
 const USERNAME_SELECTOR = "#user_session_username";
 const PASSWORD_SELECTOR = "#user_session_password";
 const CTA_SELECTOR = "#new_user_session > button > span";
@@ -11,7 +11,7 @@ const limitTopUp =
 const resultPath = "result.json";
 const { post } = require("request");
 let result = [];
-async function startBrowser(email) {
+async function startBrowser(browser,email) {
   let token;
   // const browser = await puppeteer.launch({
   //   headless: true,
@@ -31,7 +31,7 @@ async function startBrowser(email) {
   //     "--disk-cache-size=0"
   //   ]
   // });
-  const page = await client.pupBrowser.newPage();
+  const page = await browser.newPage();
   page[0];
 
   //turns request interceptor on
@@ -107,7 +107,7 @@ async function startBrowser(email) {
 async function getToken(email) {
   const { page, browser, token } = await startBrowser(email);
 
-  browser.close();
+  page.close();
   console.log("done");
   return token;
 }
@@ -202,12 +202,12 @@ async function topup(url, nominal, metode, email) {
     page.close();
     return spanVal;
   }
-  browser.close();
+  page.close();
   console.log("done");
 }
 
 async function closeBrowser(browser) {
-  return browser.close();
+  return page.close();
 }
 
 
