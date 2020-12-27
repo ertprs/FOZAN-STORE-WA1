@@ -89,7 +89,8 @@ client.on("authenticated", session => {
 client.on("auth_failure", msg => {
   // Fired if session restore was unsuccessfull
   console.error("AUTHENTICATION FAILURE", msg);
-  console.log(sessionCfg)
+  console.log(msg);
+  console.log(sessionCfg);
   client.pupBrowser.close();
   client.initialize();
 });
