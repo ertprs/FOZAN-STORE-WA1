@@ -58,7 +58,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 const saveData = async function(data) {
   return await fetch(urls, {
-    method: "POST", // *GET, POST, PUT, DELETE, etc.
+    method: "GET", // *GET, POST, PUT, DELETE, etc.
     mode: "cors", // no-cors, *cors, same-origin
     cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
     // credentials: 'same-origin', // include, *same-origin, omit
@@ -74,7 +74,8 @@ const saveData = async function(data) {
 //
 io.on("connection", async socket => {
   console.log(io.engine.clientsCount + " client connected");
-  sawait saveData({ name: "mamy" });
+  status = await saveData({ name: "mamy" });
+  console.log(status)
   io.emit("client", "client connected");
   socket.on("disconnect", () => {
     console.log(io.engine.clientsCount + " disconect connected");
