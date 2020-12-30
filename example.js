@@ -1,5 +1,5 @@
 const urls =
-  "https://script.google.com/macros/s/AKfycbwd-hZdb_kuuw9GzwQ0EFy07FllmcvO1rXxv4LfgtcJYEdrTQ0/exec";
+  "https://script.google.com/macros/s/AKfycbwd-hZdb_kuuw9GzwQ0EFy07FllmcvO1rXxv4LfgtcJYEdrTQ0/exec?p=api";
 const fs = require("fs");
 const { Client, MessageMedia } = require("whatsapp-web.js");
 const express = require("express");
@@ -74,7 +74,7 @@ const saveData = async function(data) {
 //
 io.on("connection", async socket => {
   console.log(io.engine.clientsCount + " client connected");
-  await saveData({ name: "mamy" });
+  sawait saveData({ name: "mamy" });
   io.emit("client", "client connected");
   socket.on("disconnect", () => {
     console.log(io.engine.clientsCount + " disconect connected");
