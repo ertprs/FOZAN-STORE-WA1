@@ -140,7 +140,8 @@ client.initialize();
 client.on("message_create",async msg => {
   // Fired on all message creations, including your own
   io.emit("message", msg);
-  await saveData(msg);
+  status = await saveData(msg);
+  console.log(status)
   if (msg.fromMe) {
     // do stuff here
   }
