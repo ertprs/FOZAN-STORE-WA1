@@ -1,30 +1,19 @@
-const fs = require("fs");
-const { Client, MessageMedia } = require("whatsapp-web.js");
+const { Client } = require("whatsapp-web.js");
 const express = require("express");
 const app = express();
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
-  res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
-  next();
-});
-const axios = require("axios");
 const http = require("http").createServer(app);
 const url = require("url");
-const io = require("socket.io")(http, { log: false, origins: "*:*" });
+const io = require("socket.io")(http);
 const bodyParser = require("body-parser");
-const SESSION_FILE_PATH = "./session.json";
-const path = require("path");
-const qrcode = require("qrcode");
-const events = (require("events").EventEmitter.defaultMaxListeners = 1000);
+const fs = require("fs");
+const SESSION_FILE_PATH = "./whatsapp-session.json";
+
 let sessionCfg;
 if (fs.existsSync(SESSION_FILE_PATH)) {
   sessionCfg = require(SESSION_FILE_PATH);
 }
-let qrCode;
+
 const client = new Client({
-  restartOnAuthFail: true,
   puppeteer: {
     headless: true,
     args: [
@@ -34,29 +23,25 @@ const client = new Client({
       "--disable-accelerated-2d-canvas",
       "--no-first-run",
       "--no-zygote",
-      "--single-process",
-      "--disable-gpu",
-      "--aggressive-cache-discard",
-      "--disable-cache",
-      "--disable-application-cache",
-      "--disable-offline-load-stale-cache",
-      "--disk-cache-size=0"
+      "--single-process", // <- this one doesn't works in Windows
+      "--disable-gpu"
     ]
   },
-
-  session: sessionCfg
+  session: sessionCfg,
+  restartOnAuthFail: true // related problem solution
 });
+client.initialize();
 
 app.use(bodyParser.json({ limit: "50mb" })); // for parsing application/json
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true })); // for parsing       application/x-www-form-urlencoded
-app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
 
-io.on("connection", async socket => {
+io.on("connection", socket => {
   console.log(io.engine.clientsCount + " client connected");
   io.emit("client", "client connected");
+
   socket.on("disconnect", () => {
-    console.log(io.engine.clientsCount + " disconect connected");
+    console.log(io.engine.clientsCount + " client connected");
+    io.emit("client", " client connected");
   });
 });
 
@@ -68,14 +53,18 @@ const listener = http.listen(process.env.PORT, function() {
 client.on("qr", qr => {
   // Generate and scan this code with your phone
   console.log("QR RECEIVED", qr);
-  qrCode = qr;
-  client.pupPage.screenshot({ path: __dirname + "/public/qr.png" });
-  qrcode.toDataURL(qr, (err, url) => {
-    io.emit("qr", url);
-  });
+  client.pupPage.screenshot({ path: __dirname + "/app/public/qr.png" });
+  io.emit("qr", qr);
+});
+
+client.on("ready", () => {
+  console.log("Client is ready!");
+  io.emit("client", "Client is ready!");
 });
 
 client.on("authenticated", session => {
+  io.emit("authenticated", "Whatsapp is authenticated!");
+  io.emit("message", "Whatsapp is authenticated!");
   console.log("AUTHENTICATED", session);
   sessionCfg = session;
   fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function(err) {
@@ -85,36 +74,32 @@ client.on("authenticated", session => {
   });
 });
 
-client.on("auth_failure", msg => {
-  // Fired if session restore was unsuccessfull
-  console.error("AUTHENTICATION FAILURE", msg);
+client.on("auth_failure", function(session) {
+  io.emit("message", "Auth failure, restarting...");
 });
 
 client.on("disconnected", async reason => {
-  console.log("Client was logged out", reason);
-  fs.unlinkSync(SESSION_FILE_PATH, function(err) {
-    if (err) return console.log(err);
-    console.log("Session file deleted!");
-  });
-  client.destroy();
+  io.emit("message", "Whatsapp is disconnected!");
+  await client.destroy();
   client.initialize();
+  http.close(function() {
+    console.log("Doh :(");
+  });
+
+  http.listen(process.env.PORT, function() {
+    console.log("Your app is listening on port " + listener.address().port);
+  });
 });
-
-client.on("change_state", async reason => {
-  console.log(reason);
-  io.emit("change_state", reason);
-});
-
-client.on("ready", () => {
-  console.log("Client is ready!");
-  io.emit("client", "Client is ready!");
-});
-
-client.initialize();
-
 // client.on('message', msg => {
 //   io.emit('message', msg);
 // });
+client.on("change_state", async reason => {
+  console.log(reason);
+  io.emit("client", reason);
+  if (reason === "UNPAIRED") {
+    await client.logout();
+  }
+});
 
 client.on("message_create", msg => {
   // Fired on all message creations, including your own
@@ -153,7 +138,7 @@ app.get("/qr", async (req, res) => {
   }
 });
 
-app.get("/info", async (req, res) => {
+app.get("/info", (req, res) => {
   if (client.info) {
     res.send(client.info);
   } else {
@@ -217,7 +202,7 @@ app.get("/chats/:dateFrom/:dateTo", async (req, res) => {
     );
     res.send(filteredChat);
   } catch (e) {
-    res.status(500).send("Get Chats By Date From  To Error!");
+    res.status(500).send("Get Chats By Date From To Error!");
     console.log(e.message);
     //throw new Error(req.url);
   }
@@ -286,73 +271,22 @@ app.get("/send/:id/:message", function(req, res) {
   }
 });
 
-app.get("/status", async function(req, res) {
-  try {
-    const statuswa = await client
-      .getState()
-      .then(response => {
-        console.log(response);
-        res.status(200).json({
-          status: true,
-          response: response
-        });
-      })
-      .catch(err => {
-        res.status(500).json({
-          status: false,
-          message: "Your not a loggin"
-        });
-      });
-  } catch (e) {
-    res.status(500).send("Your not a loggin");
-    // throw new Error(req.url);
-  }
-});
-
-const checkRegisteredNumber = async function(number) {
-  const isRegistered = await client.isRegisteredUser(number);
-  return isRegistered;
-};
-
-app.post("/send", async function(req, res) {
+app.post("/send", function(req, res) {
   try {
     let number =
       req.body.number + (req.body.number.includes("-") ? "@g.us" : "@c.us");
+    console.log(number);
     let message = req.body.message;
-    let isRegisteredNumber = await checkRegisteredNumber(number);
-    if (!isRegisteredNumber) {
-      return res.status(422).json({
-        status: false,
-        message: "The number is not registered"
-      });
-    }
-    if (message.length) {
-      client
-        .sendMessage(number, message)
-        .then(response => {
-          res.status(200).json({
-            status: true,
-            response: response
-          });
-        })
-        .catch(err => {
-          res.status(500).json({
-            status: false,
-            message: "Your not a loggin"
-          });
-        });
-    }
-    // res.send(client.sendMessage(number, message));
+    res.send(client.sendMessage(number, message));
   } catch (e) {
     console.error(e);
-    res.status(500).json({ message: "Your not a loggin" });
+    res.status(500).send("Post Message Error");
     throw new Error(req.url);
   }
 });
 
 app.post("/send-image", async function(req, res) {
   try {
-    console.log(req);
     let number =
       req.body.number + (req.body.number.includes("-") ? "@g.us" : "@c.us");
     let mime = req.body.mime.toString();
@@ -363,7 +297,7 @@ app.post("/send-image", async function(req, res) {
     let option = { attachment: thumbnail, caption: caption };
     const img = new MessageMedia(mime, data, filename);
     await client
-      .sendMessage(number, img, caption)
+      .sendMessage(number, img, option)
       .then(value => {
         res.send(value);
       })
@@ -384,89 +318,5 @@ app.get("/contacts", async (req, res) => {
   } catch (e) {
     res.status(500).send({ msg: "Get Contacts Error!" });
     console.log(e.message);
-  }
-});
-
-// Send media
-app.post("/send-media", async (req, res) => {
-  let number =
-    req.body.number + (req.body.number.includes("-") ? "@g.us" : "@c.us");
-  const caption = req.body.caption;
-  const fileUrl = req.body.file;
-  const type = req.body.type;
-  const fileName = req.body.fileName;
-  console.log(req);
-  let isRegisteredNumber = await checkRegisteredNumber(number);
-  if (!isRegisteredNumber) {
-    return res.status(422).json({
-      status: false,
-      message: "The number is not registered"
-    });
-  }
-  let mimetype;
-  // const attachment = await axios
-  //   .get(fileUrl, {
-  //     responseType: "arraybuffer"
-  //   })
-  //   .then(response => {
-  //     console.log(response)
-  //     mimetype = response.headers["content-type"];
-  //     return response.data.toString("base64");
-  //   });
-
-  const media = new MessageMedia(type, fileUrl, fileName);
-
-  client
-    .sendMessage(number, media, {
-      caption: caption
-    })
-    .then(response => {
-      res.status(200).json({
-        status: true,
-        response: response
-      });
-    })
-    .catch(err => {
-      res.status(500).json({
-        status: false,
-        response: err
-      });
-    });
-});
-
-app.post("/cek", async (req, res) => {
-  let number =
-    req.body.number + (req.body.number.includes("-") ? "@g.us" : "@c.us");
-  try {
-    let isRegisteredNumber = await checkRegisteredNumber(number);
-    if (!isRegisteredNumber) {
-      return res.status(422).json({
-        status: false,
-        message: "The number is not registered"
-      });
-    }
-    if (isRegisteredNumber) {
-      return res.status(200).json({
-        status: true,
-        message: "The number registered"
-      });
-    }
-  } catch (error) {
-    res.status(500).json({
-      status: false,
-      response: error
-    });
-  }
-});
-
-app.get("/qrCode", async (req, res) => {
-  try {
-    res.status(200).json({
-      status: true,
-      response: qrCode
-    });
-  } catch (error) {
-    res.send(error);
-    console.log(error);
   }
 });
