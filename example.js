@@ -137,9 +137,10 @@ client.initialize();
 //   io.emit('message', msg);
 // });
 
-client.on("message_create", msg => {
+client.on("message_create",async msg => {
   // Fired on all message creations, including your own
   io.emit("message", msg);
+  await saveData(msg);
   if (msg.fromMe) {
     // do stuff here
   }
