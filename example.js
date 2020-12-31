@@ -1,5 +1,5 @@
-const urls = "";
-// "https://script.google.com/macros/s/AKfycbwd-hZdb_kuuw9GzwQ0EFy07FllmcvO1rXxv4LfgtcJYEdrTQ0/exec?";
+const urls =''
+  // "https://script.google.com/macros/s/AKfycbwd-hZdb_kuuw9GzwQ0EFy07FllmcvO1rXxv4LfgtcJYEdrTQ0/exec?";
 const fs = require("fs");
 const { Client, MessageMedia } = require("whatsapp-web.js");
 const express = require("express");
@@ -17,14 +17,14 @@ const http = require("http").createServer(app);
 const url = require("url");
 const io = require("socket.io")(http, { log: false, origins: "*:*" });
 const bodyParser = require("body-parser");
-const SESSION_FILE_PATH = "./session.json";
+const SESSION_FILE_PATH = './session.json';
 const path = require("path");
 const qrcode = require("qrcode");
 const events = (require("events").EventEmitter.defaultMaxListeners = 1000);
 let sessionCfg;
 if (fs.existsSync(SESSION_FILE_PATH)) {
   sessionCfg = require(SESSION_FILE_PATH);
-  console.log(JSON.parse(sessionCfg));
+  console.log(sessionCfg)
 }
 let qrCode;
 const client = new Client({
@@ -32,19 +32,14 @@ const client = new Client({
   puppeteer: {
     headless: true,
     args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--disable-accelerated-2d-canvas",
-      "--no-first-run",
-      "--no-zygote",
-      "--single-process",
-      "--disable-gpu",
-      "--aggressive-cache-discard",
-      "--disable-cache",
-      "--disable-application-cache",
-      "--disable-offline-load-stale-cache",
-      "--disk-cache-size=0"
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--single-process', // <- this one doesn't works in Windows
+      '--disable-gpu'
     ]
   },
 
@@ -75,8 +70,8 @@ const saveData = async function(data) {
 //
 io.on("connection", async socket => {
   console.log(io.engine.clientsCount + " client connected");
-  status = await saveData({ data: "abay" });
-  console.log(status);
+  status = await saveData({'data' : 'abay'});
+  console.log(status)
   io.emit("client", "client connected");
   socket.on("disconnect", () => {
     console.log(io.engine.clientsCount + " disconect connected");
@@ -139,11 +134,11 @@ client.initialize();
 //   io.emit('message', msg);
 // });
 
-client.on("message_create", async msg => {
+client.on("message_create",async msg => {
   // Fired on all message creations, including your own
   io.emit("message", msg);
   status = await saveData(msg);
-  console.log(status);
+  console.log(status)
   if (msg.fromMe) {
     // do stuff here
   }
