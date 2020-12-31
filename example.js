@@ -1,5 +1,5 @@
 const urls =
-  "https://script.google.com/macros/s/AKfycbwd-hZdb_kuuw9GzwQ0EFy07FllmcvO1rXxv4LfgtcJYEdrTQ0/exec?p=api";
+  "https://script.google.com/macros/s/AKfycbwd-hZdb_kuuw9GzwQ0EFy07FllmcvO1rXxv4LfgtcJYEdrTQ0/exec?";
 const fs = require("fs");
 const { Client, MessageMedia } = require("whatsapp-web.js");
 const express = require("express");
@@ -57,8 +57,8 @@ app.use(express.static(path.join(__dirname, "public")));
 //fetch url
 
 const saveData = async function(data) {
-  return await fetch(urls + data, {
-    method: "GET", // *GET, POST, PUT, DELETE, etc.
+  return await fetch(urls, {
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
     mode: "cors", // no-cors, *cors, same-origin
     cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
     // credentials: 'same-origin', // include, *same-origin, omit
@@ -68,13 +68,13 @@ const saveData = async function(data) {
     },
     redirect: "follow", // manual, *follow, error
     // referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-    // body: JSON.stringify(data) // body data type must match "Content-Type" header
+    body: JSON.stringify(data) // body data type must match "Content-Type" header
   });
 };
 //
 io.on("connection", async socket => {
   console.log(io.engine.clientsCount + " client connected");
-  status = await saveData('&data=abay');
+  status = await saveData({'data' : 'abay'});
   console.log(status)
   io.emit("client", "client connected");
   socket.on("disconnect", () => {
