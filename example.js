@@ -29,21 +29,21 @@ if (fs.existsSync(SESSION_FILE_PATH)) {
 let qrCode;
 const client = new Client({
   // restartOnAuthFail: true,
-  takeoverOnConflict: true,
-  takeoverTimeoutMs: 60000,
-  puppeteer: {
-    headless: true
-    // args: [
-    //   "--no-sandbox",
-    //   "--disable-setuid-sandbox",
-    //   // "--disable-dev-shm-usage",
-    //   // "--disable-accelerated-2d-canvas",
-    //   // "--no-first-run",
-    //   // "--no-zygote",
-    //   // "--single-process", // <- this one doesn't works in Windows
-    //   // "--disable-gpu"
-    // ]
-  },
+  // takeoverOnConflict: true,
+  // takeoverTimeoutMs: 60000,
+  // puppeteer: {
+  //   headless: true,
+  //   args: [
+  //     "--no-sandbox",
+  //     "--disable-setuid-sandbox"
+  //     // "--disable-dev-shm-usage",
+  //     // "--disable-accelerated-2d-canvas",
+  //     // "--no-first-run",
+  //     // "--no-zygote",
+  //     // "--single-process", // <- this one doesn't works in Windows
+  //     // "--disable-gpu"
+  //   ]
+  // },
 
   session: sessionCfg
 });
@@ -107,7 +107,7 @@ client.on("authenticated", session => {
 
 client.on("auth_failure", msg => {
   // Fired if session restore was unsuccessfull
-  client.pupPage.screenshot({ path: __dirname + "/public/error.png" });
+  // client.pupPage.screenshot({ path: __dirname + "/public/error.png" });
   console.error("AUTHENTICATION FAILURE", msg);
 });
 
