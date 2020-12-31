@@ -29,22 +29,21 @@ if (fs.existsSync(SESSION_FILE_PATH)) {
 let qrCode;
 const client = new Client({
   // restartOnAuthFail: true,
-  // takeoverOnConflict: true,
-  // takeoverTimeoutMs: 60000,
-  // puppeteer: {
-  //   headless: true,
-  //   args: [
-  //     "--no-sandbox",
-  //     "--disable-setuid-sandbox"
-  //     // "--disable-dev-shm-usage",
-  //     // "--disable-accelerated-2d-canvas",
-  //     // "--no-first-run",
-  //     // "--no-zygote",
-  //     // "--single-process", // <- this one doesn't works in Windows
-  //     // "--disable-gpu"
-  //   ]
-  // },
-
+  takeoverOnConflict: true,
+  takeoverTimeoutMs: 60000,
+  puppeteer: {
+    headless: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox"
+      // "--disable-dev-shm-usage",
+      // "--disable-accelerated-2d-canvas",
+      // "--no-first-run",
+      // "--no-zygote",
+      // "--single-process", // <- this one doesn't works in Windows
+      // "--disable-gpu"
+    ]
+  },
   session: sessionCfg
 });
 
