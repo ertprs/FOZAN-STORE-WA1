@@ -1,4 +1,4 @@
-const urls = "";
+// const urls = "";
 // "https://script.google.com/macros/s/AKfycbwd-hZdb_kuuw9GzwQ0EFy07FllmcvO1rXxv4LfgtcJYEdrTQ0/exec?";
 const fs = require("fs");
 const { Client, MessageMedia } = require("whatsapp-web.js");
@@ -38,7 +38,7 @@ const client = new Client({
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
       "--disable-accelerated-2d-canvas",
-      "--no-first-run",
+      // "--no-first-run",
       "--no-zygote",
       "--single-process", // <- this one doesn't works in Windows
       "--disable-gpu"
@@ -72,8 +72,8 @@ const saveData = async function(data) {
 //
 io.on("connection", async socket => {
   console.log(io.engine.clientsCount + " client connected");
-  status = await saveData({ data: "abay" });
-  console.log(status);
+  // status = await saveData({ data: "abay" });
+  // console.log(status);
   io.emit("client", "client connected");
   socket.on("disconnect", () => {
     console.log(io.engine.clientsCount + " disconect connected");
@@ -140,8 +140,8 @@ client.initialize();
 client.on("message_create", async msg => {
   // Fired on all message creations, including your own
   io.emit("message", msg);
-  status = await saveData(msg);
-  console.log(status);
+  // status = await saveData(msg);
+  // console.log(status);
   if (msg.fromMe) {
     // do stuff here
   }
