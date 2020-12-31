@@ -3,6 +3,7 @@ dependencies:
   body-parser: 1.19.0
   chrome-launcher: 0.13.4
   express: 4.17.1
+  fs: 0.0.2
   node-fetch: 2.6.1
   qrcode: 1.4.4
   socket.io: 3.0.4
@@ -464,6 +465,10 @@ packages:
     dev: false
     resolution:
       integrity: sha1-FQStJSMVjKpA20onh8sBQRmU6k8=
+  /fs/0.0.2:
+    dev: false
+    resolution:
+      integrity: sha1-4fJE7zkzwbKmS9R5kTYGDQ9ZFPg=
   /get-caller-file/2.0.5:
     dev: false
     engines:
@@ -1169,6 +1174,7 @@ specifiers:
   body-parser: ^1.19.0
   chrome-launcher: ^0.13.4
   express: ^4.17.1
+  fs: ^0.0.2
   node-fetch: ^2.6.1
   qrcode: ^1.4.4
   socket.io: ^3.0.4
