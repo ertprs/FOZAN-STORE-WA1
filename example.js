@@ -1,5 +1,5 @@
-const urls =''
-  // "https://script.google.com/macros/s/AKfycbwd-hZdb_kuuw9GzwQ0EFy07FllmcvO1rXxv4LfgtcJYEdrTQ0/exec?";
+const urls = "";
+// "https://script.google.com/macros/s/AKfycbwd-hZdb_kuuw9GzwQ0EFy07FllmcvO1rXxv4LfgtcJYEdrTQ0/exec?";
 const fs = require("fs");
 const { Client, MessageMedia } = require("whatsapp-web.js");
 const express = require("express");
@@ -24,6 +24,7 @@ const events = (require("events").EventEmitter.defaultMaxListeners = 1000);
 let sessionCfg;
 if (fs.existsSync(SESSION_FILE_PATH)) {
   sessionCfg = require(SESSION_FILE_PATH);
+  console.log(JSON.parse(sessionCfg));
 }
 let qrCode;
 const client = new Client({
@@ -74,8 +75,8 @@ const saveData = async function(data) {
 //
 io.on("connection", async socket => {
   console.log(io.engine.clientsCount + " client connected");
-  status = await saveData({'data' : 'abay'});
-  console.log(status)
+  status = await saveData({ data: "abay" });
+  console.log(status);
   io.emit("client", "client connected");
   socket.on("disconnect", () => {
     console.log(io.engine.clientsCount + " disconect connected");
@@ -138,11 +139,11 @@ client.initialize();
 //   io.emit('message', msg);
 // });
 
-client.on("message_create",async msg => {
+client.on("message_create", async msg => {
   // Fired on all message creations, including your own
   io.emit("message", msg);
   status = await saveData(msg);
-  console.log(status)
+  console.log(status);
   if (msg.fromMe) {
     // do stuff here
   }
