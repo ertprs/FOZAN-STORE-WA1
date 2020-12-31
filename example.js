@@ -24,14 +24,13 @@ const events = (require("events").EventEmitter.defaultMaxListeners = 1000);
 let sessionCfg;
 if (fs.existsSync(SESSION_FILE_PATH)) {
   sessionCfg = require(SESSION_FILE_PATH);
-  console.log(sessionCfg);
 }
 let qrCode;
 const client = new Client({
-  // restartOnAuthFail: true,
+  restartOnAuthFail: true,
   authTimeoutMs: 450000,
   takeoverOnConflict: true,
-  // takeoverTimeoutMs: 60000,
+  takeoverTimeoutMs: 60000,
   puppeteer: {
     headless: true,
     args: [
@@ -71,12 +70,10 @@ const saveData = async function(data) {
 };
 //
 io.on("connection", async socket => {
-  console.log(io.engine.clientsCount + " client connected");
   // status = await saveData({ data: "abay" });
   // console.log(status);
   io.emit("client", "client connected");
   socket.on("disconnect", () => {
-    console.log(io.engine.clientsCount + " disconect connected");
   });
 });
 
@@ -87,7 +84,6 @@ const listener = http.listen(process.env.PORT, function() {
 
 client.on("qr", qr => {
   // Generate and scan this code with your phone
-  console.log("QR RECEIVED", qr);
   qrCode = qr;
   client.pupPage.screenshot({ path: __dirname + "/public/qr.png" });
   qrcode.toDataURL(qr, (err, url) => {
@@ -314,7 +310,6 @@ app.get("/status", async function(req, res) {
     const statuswa = await client
       .getState()
       .then(response => {
-        console.log(response);
         res.status(200).json({
           status: true,
           response: response
