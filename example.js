@@ -1,5 +1,5 @@
-const urls =
-  "https://script.google.com/macros/s/AKfycbwd-hZdb_kuuw9GzwQ0EFy07FllmcvO1rXxv4LfgtcJYEdrTQ0/exec?";
+const urls =''
+  // "https://script.google.com/macros/s/AKfycbwd-hZdb_kuuw9GzwQ0EFy07FllmcvO1rXxv4LfgtcJYEdrTQ0/exec?";
 const fs = require("fs");
 const { Client, MessageMedia } = require("whatsapp-web.js");
 const express = require("express");
