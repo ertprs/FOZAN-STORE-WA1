@@ -65,8 +65,6 @@ const client = new Client({
       "--disable-infobars",
       "--disable-breakpad",
       //'--ignore-gpu-blacklist',
-      "--window-size=1280,1024", // see defaultViewport
-      "--user-data-dir=./chromeData", // created in index.js, guess cache folder ends up inside too.
       "--no-sandbox", // meh but better resource comsuption
       "--disable-setuid-sandbox"
     ]

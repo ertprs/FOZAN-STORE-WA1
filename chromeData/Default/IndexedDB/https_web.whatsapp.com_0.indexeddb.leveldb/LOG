@@ -1,3 +1,3 @@
-2021/01/01-09:00:48.395 d15 Reusing MANIFEST /app/./chromeData/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2021/01/01-09:00:48.396 d15 Recovering log #3
-2021/01/01-09:00:48.463 d15 Reusing old log /app/./chromeData/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000003.log 
+2021/01/01-09:06:03.332 dbb Reusing MANIFEST /app/./chromeData/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2021/01/01-09:06:03.332 dbb Recovering log #3
+2021/01/01-09:06:03.431 dbb Reusing old log /app/./chromeData/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000003.log 

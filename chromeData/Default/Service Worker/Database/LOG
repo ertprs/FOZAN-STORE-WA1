@@ -1,3 +1,3 @@
-2021/01/01-09:00:32.179 d19 Reusing MANIFEST /app/./chromeData/Default/Service Worker/Database/MANIFEST-000001
-2021/01/01-09:00:32.179 d19 Recovering log #3
-2021/01/01-09:00:32.179 d19 Reusing old log /app/./chromeData/Default/Service Worker/Database/000003.log 
+2021/01/01-09:05:57.790 db8 Reusing MANIFEST /app/./chromeData/Default/Service Worker/Database/MANIFEST-000001
+2021/01/01-09:05:57.791 db8 Recovering log #3
+2021/01/01-09:05:57.791 db8 Reusing old log /app/./chromeData/Default/Service Worker/Database/000003.log 
