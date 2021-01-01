@@ -25,7 +25,6 @@ let sessionCfg;
 if (fs.existsSync(SESSION_FILE_PATH)) {
   sessionCfg = require(SESSION_FILE_PATH);
   console.log(sessionCfg);
-  
 }
 let qrCode;
 const client = new Client({
@@ -169,6 +168,16 @@ client.on("message_ack", (msg, ack) => {
 
 app.get("/", async (req, res) => {
   res.sendFile(__dirname + "/view/index.html");
+});
+
+app.get("/logout", async (req, res) => {
+  fs.unlinkSync(SESSION_FILE_PATH, function(err) {
+    if (err) return console.log(err);
+    console.log("Session file deleted!");
+  });
+  client.destroy();
+  client.initialize();
+  res.send({ msg: "Logout" });
 });
 
 app.get("/qr", async (req, res) => {
