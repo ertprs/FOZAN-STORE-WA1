@@ -11,20 +11,16 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
   next();
 });
-const fetch = require("node-fetch");
-const axios = require("axios");
 const http = require("http").createServer(app);
-const url = require("url");
 const io = require("socket.io")(http, { log: false, origins: "*:*" });
 const bodyParser = require("body-parser");
-// const SESSION_FILE_PATH = "./session.json";
+const SESSION_FILE_PATH = "./session.json";
 const path = require("path");
 const qrcode = require("qrcode");
 const events = (require("events").EventEmitter.defaultMaxListeners = 1000);
 let sessionCfg;
-if (fs.existsSync('session.json')) {
-  sessionCfg = 'session.json'
-  // sessionCfg = require(SESSION_FILE_PATH);
+if (fs.existsSync(SESSION_FILE_PATH)) {
+  sessionCfg = require(SESSION_FILE_PATH);
   console.log(sessionCfg);
 }
 let qrCode;
@@ -33,7 +29,7 @@ const client = new Client({
   // userAgent:
   //   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
   authTimeoutMs: 90000,
-  takeoverOnConflict: false,
+  takeoverOnConflict: true,
   takeoverTimeoutMs: 60000,
   puppeteer: {
     headless: true,
@@ -56,28 +52,9 @@ app.use(bodyParser.json({ limit: "50mb" })); // for parsing application/json
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true })); // for parsing       application/x-www-form-urlencoded
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
-//fetch url
 
-const saveData = async function(data) {
-  return await fetch(urls, {
-    method: "POST", // *GET, POST, PUT, DELETE, etc.
-    mode: "cors", // no-cors, *cors, same-origin
-    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-    // credentials: 'same-origin', // include, *same-origin, omit
-    headers: {
-      "Content-Type": "application/json"
-      // 'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    redirect: "follow", // manual, *follow, error
-    // referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-    body: JSON.stringify(data) // body data type must match "Content-Type" header
-  });
-};
-//
 io.on("connection", async socket => {
   console.log(io.engine.clientsCount + " client connected");
-  // status = await saveData({ data: "abay" });
-  // console.log(status);
   io.emit("client", "client connected");
   socket.on("disconnect", () => {
     console.log(io.engine.clientsCount + " disconect connected");
@@ -110,8 +87,6 @@ client.on("authenticated", session => {
 });
 
 client.on("auth_failure", msg => {
-  // Fired if session restore was unsuccessfull
-  // client.pupPage.screenshot({ path: __dirname + "/public/error.png" });
   console.error("AUTHENTICATION FAILURE", msg);
 });
 
@@ -144,8 +119,6 @@ client.initialize();
 client.on("message_create", async msg => {
   // Fired on all message creations, including your own
   io.emit("message", msg);
-  // status = await saveData(msg);
-  // console.log(status);
   if (msg.fromMe) {
     // do stuff here
   }
@@ -450,15 +423,6 @@ app.post("/send-media", async (req, res) => {
     });
   }
   let mimetype;
-  // const attachment = await axios
-  //   .get(fileUrl, {
-  //     responseType: "arraybuffer"
-  //   })
-  //   .then(response => {
-  //     console.log(response)
-  //     mimetype = response.headers["content-type"];
-  //     return response.data.toString("base64");
-  //   });
 
   const media = new MessageMedia(type, fileUrl, fileName);
 
