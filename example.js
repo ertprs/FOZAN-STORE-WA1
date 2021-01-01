@@ -32,7 +32,7 @@ const client = new Client({
   userAgent:
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
   authTimeoutMs: 95000,
-  takeoverOnConflict: false,
+  takeoverOnConflict: true,
   takeoverTimeoutMs: 60000,
   puppeteer: {
     headless: true,
