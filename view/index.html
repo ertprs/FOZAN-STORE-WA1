@@ -74,6 +74,7 @@
         })
 
         socket.on("client", data => {
+          console.log(data)
           if (data.endsWith("ready!")) {
             setStrClient(data);
             setConnected(true);
