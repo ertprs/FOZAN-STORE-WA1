@@ -17,7 +17,7 @@ const http = require("http").createServer(app);
 const url = require("url");
 const io = require("socket.io")(http, { log: false, origins: "*:*" });
 const bodyParser = require("body-parser");
-const SESSION_FILE_PATH = "/session.json";
+const SESSION_FILE_PATH = "./session.json";
 const path = require("path");
 const qrcode = require("qrcode");
 const events = (require("events").EventEmitter.defaultMaxListeners = 1000);
@@ -31,7 +31,7 @@ const client = new Client({
   restartOnAuthFail: true,
   // userAgent:
   //   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
-  // authTimeoutMs: 45000,
+  authTimeoutMs: 45000,
   takeoverOnConflict: true,
   takeoverTimeoutMs: 60000,
   puppeteer: {
