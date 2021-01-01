@@ -22,6 +22,7 @@ let sessionCfg;
 if (fs.existsSync(SESSION_FILE_PATH)) {
   sessionCfg = require(SESSION_FILE_PATH);
   console.log(sessionCfg);
+  
 }
 let qrCode;
 const client = new Client({
@@ -56,6 +57,7 @@ app.use(express.static(path.join(__dirname, "public")));
 io.on("connection", async socket => {
   console.log(io.engine.clientsCount + " client connected");
   io.emit("client", "client connected");
+  io.emit("client", sessionCfg);
   socket.on("disconnect", () => {
     console.log(io.engine.clientsCount + " disconect connected");
   });
@@ -78,15 +80,18 @@ client.on("qr", qr => {
 
 client.on("authenticated", session => {
   console.log("AUTHENTICATED", session);
+  io.emit("client", session);
   sessionCfg = session;
   fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function(err) {
     if (err) {
       console.error(err);
+      io.emit("client", err);
     }
   });
 });
 
 client.on("auth_failure", msg => {
+  io.emit("client", msg);
   console.error("AUTHENTICATION FAILURE", msg);
 });
 
@@ -95,6 +100,7 @@ client.on("disconnected", async reason => {
   fs.unlinkSync(SESSION_FILE_PATH, function(err) {
     if (err) return console.log(err);
     console.log("Session file deleted!");
+    io.emit("client", "Session file deleted!");
   });
   client.destroy();
   client.initialize();
