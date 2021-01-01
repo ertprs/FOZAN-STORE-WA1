@@ -171,10 +171,14 @@ app.get("/", async (req, res) => {
 });
 
 app.get("/logout", async (req, res) => {
-  fs.unlinkSync(SESSION_FILE_PATH, function(err) {
-    if (err) return console.log(err);
-    console.log("Session file deleted!");
-  });
+  try {
+    fs.unlinkSync(SESSION_FILE_PATH, function(err) {
+      if (err) return console.log(err);
+      console.log("Session file deleted!");
+    });
+  } catch (e) {
+    console.log(e.message);
+  }
   client.destroy();
   client.initialize();
   res.send({ msg: "Logout" });
