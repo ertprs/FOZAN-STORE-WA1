@@ -17,13 +17,14 @@ const http = require("http").createServer(app);
 const url = require("url");
 const io = require("socket.io")(http, { log: false, origins: "*:*" });
 const bodyParser = require("body-parser");
-const SESSION_FILE_PATH = "./session.json";
+// const SESSION_FILE_PATH = "./session.json";
 const path = require("path");
 const qrcode = require("qrcode");
 const events = (require("events").EventEmitter.defaultMaxListeners = 1000);
 let sessionCfg;
-if (fs.existsSync(SESSION_FILE_PATH)) {
-  sessionCfg = require(SESSION_FILE_PATH);
+if (fs.existsSync('session.json')) {
+  sessionCfg = 'session.json'
+  // sessionCfg = require(SESSION_FILE_PATH);
   console.log(sessionCfg);
 }
 let qrCode;
@@ -39,6 +40,7 @@ const client = new Client({
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
+      '--unhandled-rejections=strict',
       // "--disable-dev-shm-usage",
       // "--disable-accelerated-2d-canvas",
       // "--no-first-run",
