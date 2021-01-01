@@ -36,38 +36,38 @@ const client = new Client({
   takeoverTimeoutMs: 60000,
   puppeteer: {
     headless: true,
-    // args: [
-    //   "--no-sandbox",
-    //   "--disable-setuid-sandbox",
-    // "--disable-dev-shm-usage",
-    // "--disable-accelerated-2d-canvas",
-    // "--no-first-run",
-    // "--no-zygote",
-    // "--single-process", // <- this one doesn't works in Windows
-    // "--disable-gpu"
-    // ]
     args: [
-      /* TODO : https://peter.sh/experiments/chromium-command-line-switches/
-        there is still a whole bunch of stuff to disable
-      */
-      //'--crash-test', // Causes the browser process to crash on startup, useful to see if we catch that correctly
-      // not idea if those 2 aa options are usefull with disable gl thingy
-      "--disable-canvas-aa", // Disable antialiasing on 2d canvas
-      "--disable-2d-canvas-clip-aa", // Disable antialiasing on 2d canvas clips
-      "--disable-gl-drawing-for-tests", // BEST OPTION EVER! Disables GL drawing operations which produce pixel output. With this the GL output will not be correct but tests will run faster.
-      "--disable-dev-shm-usage", // ???
-      "--no-zygote", // wtf does that mean ?
-      "--use-gl=swiftshader", // better cpu usage with --use-gl=desktop rather than --use-gl=swiftshader, still needs more testing.
-      "--enable-webgl",
-      "--hide-scrollbars",
-      "--mute-audio",
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-accelerated-2d-canvas",
       "--no-first-run",
-      "--disable-infobars",
-      "--disable-breakpad",
-      //'--ignore-gpu-blacklist',
-      "--no-sandbox", // meh but better resource comsuption
-      "--disable-setuid-sandbox"
+      "--no-zygote",
+      "--single-process", // <- this one doesn't works in Windows
+      "--disable-gpu"
     ]
+    // args: [
+    //   /* TODO : https://peter.sh/experiments/chromium-command-line-switches/
+    //     there is still a whole bunch of stuff to disable
+    //   */
+    //   //'--crash-test', // Causes the browser process to crash on startup, useful to see if we catch that correctly
+    //   // not idea if those 2 aa options are usefull with disable gl thingy
+    //   "--disable-canvas-aa", // Disable antialiasing on 2d canvas
+    //   "--disable-2d-canvas-clip-aa", // Disable antialiasing on 2d canvas clips
+    //   "--disable-gl-drawing-for-tests", // BEST OPTION EVER! Disables GL drawing operations which produce pixel output. With this the GL output will not be correct but tests will run faster.
+    //   "--disable-dev-shm-usage", // ???
+    //   "--no-zygote", // wtf does that mean ?
+    //   "--use-gl=swiftshader", // better cpu usage with --use-gl=desktop rather than --use-gl=swiftshader, still needs more testing.
+    //   "--enable-webgl",
+    //   "--hide-scrollbars",
+    //   "--mute-audio",
+    //   "--no-first-run",
+    //   "--disable-infobars",
+    //   "--disable-breakpad",
+    //   //'--ignore-gpu-blacklist',
+    //   "--no-sandbox", // meh but better resource comsuption
+    //   "--disable-setuid-sandbox"
+    // ]
   },
   session: sessionCfg
 });
