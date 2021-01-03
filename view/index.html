@@ -77,7 +77,7 @@
         })
         socket.on("client", data => {
           console.log(data)
-          if (data.includes("ready!")) {
+          if (data === "Client is ready!") {
             setStrClient(data);
             setConnected(true);
           }
