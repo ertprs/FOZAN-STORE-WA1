@@ -72,10 +72,12 @@
             setLoading(true);
           }
         })
-
+        socket.on("auth", data => {
+        
+        })
         socket.on("client", data => {
           console.log(data)
-          if (data.endsWith("ready!")) {
+          if (data.includes("ready!")) {
             setStrClient(data);
             setConnected(true);
           }
