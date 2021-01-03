@@ -80,7 +80,7 @@ client.on("qr", qr => {
 
 client.on("authenticated", session => {
   console.log("AUTHENTICATED", session);
-  io.emit("client", session);
+  io.emit("auth", session);
   sessionCfg = session;
   fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function(err) {
     if (err) {
